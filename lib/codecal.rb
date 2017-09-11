@@ -27,4 +27,3 @@ module Codecal
   end
 end
 
-puts Codecal.bank_customer_code_generate(934724792, "BTC")
