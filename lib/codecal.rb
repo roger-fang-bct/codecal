@@ -31,6 +31,3 @@ module Codecal
     end
   end
 end
-
-a =  Codecal.bank_customer_code_generate(1230,"hsr")
-puts a
