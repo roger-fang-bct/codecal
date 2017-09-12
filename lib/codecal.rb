@@ -7,7 +7,7 @@ module Codecal
     def bank_customer_code_generate(account_id, currency)
       raise "parameter 1 type should be Integer and length not longer than 9" unless account_id.is_a?(Integer) && account_id.to_s.size <= 9
       raise "parameter 2 type should be String" unless currency.is_a?(String)
-      currency_code = Code.new[currency]
+      currency_code = Code.new[currency.upcase]
       raise "currency not found" unless currency_code
       cal_array = ("%09d" % account_id + "%04d" % currency_code.to_i).split("").map! {|i| i.to_i}
       return code_calculate(cal_array, @@generate_seed)
@@ -26,4 +26,3 @@ module Codecal
     end
   end
 end
-
