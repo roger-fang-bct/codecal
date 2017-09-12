@@ -23,11 +23,10 @@ require 'codecal'
 # Parameters:
 #   account_id : Integer(<=9) --user account_id in acx
 #   currency   : String  --currency name
-# Return:
-#   String(16) -- 16 numbers string
-# Raise:
-#   pamameters type error
-#   currency not found
+# Return: Hash
+#   success       : boolean -- generate customer code success
+#   customer code : String  -- 16 numbers string when success == true
+#   error         : String  -- error message of parameters when success == false
 Codecal.bank_customer_code_generate(account_id, currency)
 
 # Validate customer code
@@ -35,6 +34,5 @@ Codecal.bank_customer_code_generate(account_id, currency)
 #   customer_code : String
 # Return:
 #   boolean
-# Return String
 Codecal.validate_bank_customer_code(String)
 

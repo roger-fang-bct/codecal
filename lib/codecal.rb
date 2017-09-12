@@ -5,12 +5,17 @@ module Codecal
   @@generate_seed = [2,7,5,3,8,9,5,9,1,6,7,3,5]
   class<<self
     def bank_customer_code_generate(account_id, currency)
-      raise "parameter 1 type should be Integer and length not longer than 9" unless account_id.is_a?(Integer) && account_id.to_s.size <= 9
-      raise "parameter 2 type should be String" unless currency.is_a?(String)
-      currency_code = Code.new[currency.upcase]
-      raise "currency not found" unless currency_code
-      cal_array = ("%09d" % account_id + "%04d" % currency_code.to_i).split("").map! {|i| i.to_i}
-      return code_calculate(cal_array, @@generate_seed)
+      errormsg = ""
+      errormsg += "parameter 1 type should be Integer and length not longer than 9. " unless account_id.is_a?(Integer) && account_id.to_s.size <= 9
+      currency.is_a?(String) ? currency.upcase! : errormsg += "parameter 2 type should be String. "
+      currency_code = Code.new[currency]
+      errormsg += "currency not found. " unless currency_code
+      if errormsg.size == 0
+        cal_array = ("%09d" % account_id + "%04d" % currency_code.to_i).split("").map! {|i| i.to_i}
+        {success:true,customer_code: code_calculate(cal_array, @@generate_seed) }
+      else
+        {success:false, error: errormsg}
+      end
     end
 
     def validate_bank_customer_code(customer_code)
@@ -26,3 +31,6 @@ module Codecal
     end
   end
 end
+
+a =  Codecal.bank_customer_code_generate(1230,"hsr")
+puts a

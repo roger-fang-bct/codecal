@@ -6,10 +6,18 @@ RSpec.describe Codecal do
   end
 
   describe "generate correct code" do
-    it "return correct code with correct params" do
-      customer_code = Codecal.bank_customer_code_generate(1230,"HSR")
-      expect(customer_code.length).to eq(16)
-      expect(customer_code).to eq("0000012300020052")
+    it "return correct code with correct params upcase" do
+      result = Codecal.bank_customer_code_generate(1230,"HSR")
+      expect(result[:success]).to eq(true)
+      expect(result[:customer_code].length).to eq(16)
+      expect(result[:customer_code]).to eq("0000012300020052")
+    end
+
+    it "return correct code with correct params downcase" do
+      result = Codecal.bank_customer_code_generate(1230,"eth")
+      expect(result[:success]).to eq(true)
+      expect(result[:customer_code].length).to eq(16)
+      expect(result[:customer_code]).to eq("0000012300002056")
     end
   end
 
@@ -31,15 +39,21 @@ RSpec.describe Codecal do
   describe "generate with wrong params" do
 
     it "raise error with wrong parameters type" do
-      expect { Codecal.bank_customer_code_generate(1230,1234) }.to raise_error(/type should be String/)
+      result = Codecal.bank_customer_code_generate(1230,1234)
+      expect(result[:success]).to eq(false)
+      expect(result[:error]).to match(/type should be String/)
     end
 
     it "raise error with wrong parameters type" do
-      expect { Codecal.bank_customer_code_generate("fda",1234) }.to raise_error(/type should be Integer and length not longer than/)
+      result = Codecal.bank_customer_code_generate("fda",1234)
+      expect(result[:success]).to eq(false)
+      expect(result[:error]).to match(/type should be Integer and length not longer than/)
     end
 
     it "raise error with wrong parameters length" do
-      expect { Codecal.bank_customer_code_generate(5354233243241321,"fsda") }.to raise_error(/type should be Integer and length not longer than/)
+      result = Codecal.bank_customer_code_generate(5354233243241321,"fsda")
+      expect(result[:success]).to eq(false)
+      expect(result[:error]).to match(/type should be Integer and length not longer than/)
     end
     
   end
@@ -47,7 +61,9 @@ RSpec.describe Codecal do
   describe "generate with currency code not exist" do
 
     it "raise error with wrong currency name" do
-      expect { Codecal.bank_customer_code_generate(1230,"1234") }.to raise_error(/currency not found/)
+      result = Codecal.bank_customer_code_generate(1230,"1234")
+      expect(result[:success]).to eq(false)
+      expect(result[:error]).to match(/currency not found/)
     end
   end
 end
