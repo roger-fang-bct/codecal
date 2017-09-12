@@ -6,6 +6,10 @@ module Codecal
   class<<self
     def bank_customer_code_generate(account_id, currency)
       errormsg = ""
+      if account_id == nil || currency == nil
+        errormsg += "parameter is nil. " 
+        return {success:false, error: errormsg}
+      end
       errormsg += "parameter 1 type should be Integer and length not longer than 9. " unless account_id.is_a?(Integer) && account_id.to_s.size <= 9
       currency.is_a?(String) ? currency.upcase! : errormsg += "parameter 2 type should be String. "
       currency_code = Code.new[currency]
@@ -19,9 +23,14 @@ module Codecal
     end
 
     def validate_bank_customer_code(customer_code)
-      return false unless customer_code.is_a?(String) && customer_code.size == 16
+      return false unless customer_code && customer_code.is_a?(String) && customer_code.size == 16
       calcode = code_calculate(customer_code[0..12].split("").map! {|i| i.to_i}, @@generate_seed)
       return customer_code == calcode
+    end
+
+    def get_currency_name(currency_code)
+      return nil if !currency_code || currency_code.size !=4 || !currency_code.is_a?(String)
+      return Code.new.get_name(currency_code)
     end
 
     private

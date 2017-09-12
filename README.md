@@ -33,6 +33,12 @@ Codecal.bank_customer_code_generate(account_id, currency)
 # Parameters:
 #   customer_code : String
 # Return:
-#   boolean
+#   valid : boolean
 Codecal.validate_bank_customer_code(String)
 
+# Get currency name
+# Parameters:
+#   currency_code : String(4)
+# Return:
+#   currency name : String -- nil if not found
+Codecal.get_currency_name(String)

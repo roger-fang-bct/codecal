@@ -12,4 +12,8 @@ class Code
     data[key]
   end
 
+  def get_name value
+    data.key(value)
+  end
+
 end

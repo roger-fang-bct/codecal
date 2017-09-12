@@ -31,12 +31,32 @@ RSpec.describe Codecal do
     end
 
     it "return false when passing error type code" do
+      expect(Codecal.validate_bank_customer_code(nil)).to eq(false)
       expect(Codecal.validate_bank_customer_code(4234)).to eq(false)
       expect(Codecal.validate_bank_customer_code("432432jhk4h3214h321h4321")).to eq(false)
     end
   end
-  
+
+  describe "get currency name" do
+    it "return true when passing correct code" do
+      expect(Codecal.get_currency_name("0001")).to eq("BTC")
+    end
+
+    it "return false when passing error type code" do
+      expect(Codecal.get_currency_name(nil)).to eq(nil)
+      expect(Codecal.get_currency_name(4234)).to eq(nil)
+      expect(Codecal.get_currency_name(4234)).to eq(nil)
+      expect(Codecal.get_currency_name("432432jhk4h3214h321h4321")).to eq(nil)
+    end
+  end
+
   describe "generate with wrong params" do
+
+    it "raise error with nil parameters type" do
+      result = Codecal.bank_customer_code_generate(nil,nil)
+      expect(result[:success]).to eq(false)
+      expect(result[:error]).to match(/parameter is nil./)
+    end
 
     it "raise error with wrong parameters type" do
       result = Codecal.bank_customer_code_generate(1230,1234)
