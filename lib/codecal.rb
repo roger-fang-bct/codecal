@@ -3,7 +3,7 @@ require_relative "./code"
 
 module Codecal
   @@generate_seed = [2,7,5,3,8,9,5,9,1,6,7,3,5]
-  @@simple_seed = [7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2,1]
+  @@simple_seed = [5,4,6,2,3,1,5,4,6,2,3,1]
   class<<self
     def bank_customer_code_generate(account_id, currency)
       errormsg = ""
@@ -63,7 +63,7 @@ module Codecal
 
     def simple_code_calculate(array, seed)
       code = array.reverse.each_with_index.inject(0){|count, (i, index)| count += i*seed.reverse[index + 1]}
-      return (array.join + ( code % 11 ).to_s).to_i.to_s
+      return (array.join + ( code % 7 ).to_s).to_i.to_s
     end
   end
 end

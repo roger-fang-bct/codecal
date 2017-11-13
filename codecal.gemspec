@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["roger.fang@acx.io"]
 
   spec.summary       = %q{calculate a string for parameters.}
-  spec.description   = %q{return a string according to 2 parameter and a seed.}
+  spec.description   = %q{return a string according to parameters(1/2) and a seed.}
   spec.homepage      = ""
   spec.license       = "MIT"
 

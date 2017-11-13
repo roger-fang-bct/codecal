@@ -26,7 +26,7 @@ RSpec.describe Codecal do
       result = Codecal.simple_code_generate(65524)
       expect(result[:success]).to eq(true)
       expect(result[:customer_code].length).to eq(6)
-      expect(result[:customer_code]).to eq("655249")
+      expect(result[:customer_code]).to eq("655245")
     end
 
   end
@@ -49,11 +49,11 @@ RSpec.describe Codecal do
 
   describe "validate simple code" do
     it "return true when passing correct code" do
-      expect(Codecal.validate_simple_code("655249")).to eq(true)
+      expect(Codecal.validate_simple_code("655245")).to eq(true)
     end
 
     it "return false when passing wrong code" do
-      expect(Codecal.validate_simple_code("655259")).to eq(false)
+      expect(Codecal.validate_simple_code("655255")).to eq(false)
     end
 
     it "return false when passing error type code" do
