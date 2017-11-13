@@ -29,12 +29,28 @@ require 'codecal'
 #   error         : String  -- error message of parameters when success == false
 Codecal.bank_customer_code_generate(account_id, currency)
 
+# Generate simple code for account
+# Parameters:
+#   account_id : Integer(<=9) --user account_id in acx
+# Return: Hash
+#   success       : boolean -- generate customer code success
+#   customer code : String  -- numbers(account_id.length + 1) string when success == true
+#   error         : String  -- error message of parameters when success == false
+Codecal.simple_code_generate(account_id)
+
 # Validate customer code
 # Parameters:
 #   customer_code : String
 # Return:
 #   valid : boolean
 Codecal.validate_bank_customer_code(String)
+
+# Validate simple code
+# Parameters:
+#   simple_code : String
+# Return:
+#   valid : boolean
+Codecal.validate_simple_code(String)
 
 # Get currency name
 # Parameters:

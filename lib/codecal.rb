@@ -3,6 +3,7 @@ require_relative "./code"
 
 module Codecal
   @@generate_seed = [2,7,5,3,8,9,5,9,1,6,7,3,5]
+  @@simple_seed = [7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2,1]
   class<<self
     def bank_customer_code_generate(account_id, currency)
       errormsg = ""
@@ -22,10 +23,31 @@ module Codecal
       end
     end
 
+    def simple_code_generate(account_id)
+      errormsg = ""
+      if account_id == nil
+        errormsg += "parameter is nil. "
+        return {success:false, error: errormsg}
+      end
+      errormsg += "parameter 1 type should be Integer. " unless account_id.to_i > 0
+      if errormsg.size == 0
+        cal_array = ("%09d" % account_id).split("").map! {|i| i.to_i}
+        {success:true,customer_code: simple_code_calculate(cal_array, @@simple_seed) }
+      else
+        {success:false, error: errormsg}
+      end
+    end
+
     def validate_bank_customer_code(customer_code)
       return false unless customer_code && customer_code.is_a?(String) && customer_code.size == 16
       calcode = code_calculate(customer_code[0..12].split("").map! {|i| i.to_i}, @@generate_seed)
       return customer_code == calcode
+    end
+
+    def validate_simple_code(simple_code)
+      return false unless simple_code && simple_code.to_i > 0 && simple_code.size > 1
+      calcode = simple_code_calculate(simple_code[0..-2].split("").map! {|i| i.to_i}, @@simple_seed)
+      return simple_code == calcode
     end
 
     def get_currency_name(currency_code)
@@ -37,6 +59,11 @@ module Codecal
     def code_calculate(array, seed)
       code = array.each_with_index.inject(0){|count, (i, index)| count += i*seed[index]}
       return array.join + ("%03d" % code).to_s
+    end
+
+    def simple_code_calculate(array, seed)
+      code = array.reverse.each_with_index.inject(0){|count, (i, index)| count += i*seed.reverse[index + 1]}
+      return (array.join + ( code % 11 ).to_s).to_i.to_s
     end
   end
 end

@@ -21,6 +21,16 @@ RSpec.describe Codecal do
     end
   end
 
+  describe "generate simple correct code" do
+    it "return correct code with correct params upcase" do
+      result = Codecal.simple_code_generate(65524)
+      expect(result[:success]).to eq(true)
+      expect(result[:customer_code].length).to eq(6)
+      expect(result[:customer_code]).to eq("655249")
+    end
+
+  end
+
   describe "validate customer code" do
     it "return true when passing correct code" do
       expect(Codecal.validate_bank_customer_code("0000012300020052")).to eq(true)
@@ -34,6 +44,21 @@ RSpec.describe Codecal do
       expect(Codecal.validate_bank_customer_code(nil)).to eq(false)
       expect(Codecal.validate_bank_customer_code(4234)).to eq(false)
       expect(Codecal.validate_bank_customer_code("432432jhk4h3214h321h4321")).to eq(false)
+    end
+  end
+
+  describe "validate simple code" do
+    it "return true when passing correct code" do
+      expect(Codecal.validate_simple_code("655249")).to eq(true)
+    end
+
+    it "return false when passing wrong code" do
+      expect(Codecal.validate_simple_code("655259")).to eq(false)
+    end
+
+    it "return false when passing error type code" do
+      expect(Codecal.validate_simple_code(nil)).to eq(false)
+      expect(Codecal.validate_simple_code("3214h32")).to eq(false)
     end
   end
 
