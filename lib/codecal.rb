@@ -31,7 +31,7 @@ module Codecal
       end
       errormsg += "parameter 1 type should be Integer. " unless account_id.to_i > 0
       if errormsg.size == 0
-        cal_array = ("%09d" % account_id).split("").map! {|i| i.to_i}
+        cal_array = (account_id.to_i.to_s).split("").map! {|i| i.to_i}
         {success:true,customer_code: simple_code_calculate(cal_array, @@simple_seed) }
       else
         {success:false, error: errormsg}
@@ -62,7 +62,7 @@ module Codecal
     end
 
     def simple_code_calculate(array, seed)
-      code = array.reverse.each_with_index.inject(0){|count, (i, index)| count += i*seed.reverse[index + 1]}
+      code = array.reverse.each_with_index.inject(0){|count, (i, index)| count += i*( index < 11 ? seed.reverse[index + 1] : (index+1).times.inject(1) {|c| c *= 3} % 7 ) }
       return (array.join + ( code % 7 ).to_s).to_i.to_s
     end
   end

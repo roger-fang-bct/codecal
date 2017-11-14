@@ -23,10 +23,17 @@ RSpec.describe Codecal do
 
   describe "generate simple correct code" do
     it "return correct code with correct params upcase" do
-      result = Codecal.simple_code_generate(65524)
+      result = Codecal.simple_code_generate("65524")
       expect(result[:success]).to eq(true)
       expect(result[:customer_code].length).to eq(6)
       expect(result[:customer_code]).to eq("655245")
+    end
+
+    it "return correct code with correct params upcase" do
+      result = Codecal.simple_code_generate("000035465265524")
+      expect(result[:success]).to eq(true)
+      expect(result[:customer_code].length).to eq(12)
+      expect(result[:customer_code]).to eq("354652655242")
     end
 
   end
