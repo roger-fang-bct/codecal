@@ -21,22 +21,32 @@ require 'codecal'
 
 # Generate customer code for user account
 # Parameters:
-#   account_id : Integer(<=9) --user account_id in acx
-#   currency   : String  --currency name
+#   number     : Integer(<=9) -- code to be calculated and masked
+#   currency   : String       --currency name
 # Return: Hash
 #   success       : boolean -- generate customer code success
 #   customer code : String  -- 16 numbers string when success == true
 #   error         : String  -- error message of parameters when success == false
-Codecal.bank_customer_code_generate(account_id, currency)
+Codecal.bank_customer_code_generate(number, currency)
 
 # Generate simple code for account
 # Parameters:
-#   account_id : Integer(<=9) --user account_id in acx
+#   number  : Integer(<=9)  -- code to be calculated and masked
 # Return: Hash
 #   success       : boolean -- generate customer code success
-#   customer code : String  -- numbers(account_id.length + 1) string when success == true
+#   customer code : String  -- numbers(number.length + 1) string when success == true
 #   error         : String  -- error message of parameters when success == false
-Codecal.simple_code_generate(account_id)
+Codecal.simple_code_generate(number)
+
+# Generate masked code for account
+# Parameters:
+#   mask    : String(>=6)   -- mask of letter or number
+#   number  : Integer(<=9)  -- code to be calculated and masked
+# Return: Hash
+#   success       : boolean -- generate customer code success
+#   customer code : String  -- combination of letter and number(number.length + 1) string when success == true
+#   error         : String  -- error message of parameters when success == false
+Codecal.code_generate_with_mask(mask, number)
 
 # Validate customer code
 # Parameters:
@@ -51,6 +61,14 @@ Codecal.validate_bank_customer_code(String)
 # Return:
 #   valid : boolean
 Codecal.validate_simple_code(String)
+
+# Validate masked code
+# Parameters:
+#   mask        : String(>=6)   -- mask of letter or number
+#   masked_code : String(>=6)
+# Return:
+#   valid : boolean
+Codecal.validate_masked_code(String)
 
 # Get currency name
 # Parameters:

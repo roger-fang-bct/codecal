@@ -38,6 +38,41 @@ RSpec.describe Codecal do
 
   end
 
+  describe "generate masked code" do
+    it "return correct code with correct params longer than 6" do
+      result = Codecal.code_generate_with_mask("ag2gd8",239851)
+      expect(result[:success]).to eq(true)
+      expect(result[:customer_code].length).to eq(7)
+      expect(result[:customer_code]).to eq("22q0w8q")
+    end
+
+    it "return correct code with correct params shorter than 6" do
+      result = Codecal.code_generate_with_mask("tu3a2j",2)
+      expect(result[:success]).to eq(true)
+      expect(result[:customer_code].length).to eq(6)
+      expect(result[:customer_code]).to eq("6jsl0n")
+    end
+
+    it "return correct code with correct params upper case" do
+      result = Codecal.code_generate_with_mask("aG2gD8",239851)
+      expect(result[:success]).to eq(true)
+      expect(result[:customer_code].length).to eq(7)
+      expect(result[:customer_code]).to eq("22q0w8q")
+    end
+
+    it "return correct code with incorrect params error mask" do
+      result = Codecal.code_generate_with_mask(2356,2)
+      expect(result[:success]).to eq(false)
+      expect(result[:error]).to match(/mark should be string of letter or number and length should >= 5/)
+    end
+
+    it "return correct code with incorrect params error code" do
+      result = Codecal.code_generate_with_mask("fda3a5s","fdsa")
+      expect(result[:success]).to eq(false)
+      expect(result[:error]).to match(/the type of the code to be encrypted should be Integer/)
+    end
+  end
+
   describe "validate customer code" do
     it "return true when passing correct code" do
       expect(Codecal.validate_bank_customer_code("0000012300020052")).to eq(true)
@@ -66,6 +101,31 @@ RSpec.describe Codecal do
     it "return false when passing error type code" do
       expect(Codecal.validate_simple_code(nil)).to eq(false)
       expect(Codecal.validate_simple_code("3214h32")).to eq(false)
+    end
+  end
+
+  describe "validate masked code" do
+    it "return true when passing correct code" do
+      expect(Codecal.validate_masked_code("aG2gD8", "22q0w8q")).to eq(true)
+      expect(Codecal.validate_masked_code("tu3a2j", "6jsl0n")).to eq(true)
+    end
+
+    it "return false when passing wrong code" do
+      expect(Codecal.validate_masked_code("aG2gD8", "23q0w8q")).to eq(false)
+      expect(Codecal.validate_masked_code("aG2gD8", "badfdsfd")).to eq(false)
+      expect(Codecal.validate_masked_code("aG2gD8", "2fds3r38q")).to eq(false)
+      expect(Codecal.validate_masked_code("aG2gD8", "2dsdw8q")).to eq(false)
+      expect(Codecal.validate_masked_code("aG2gD8", "w8q")).to eq(false)
+    end
+
+    it "return false when passing error type" do
+      expect(Codecal.validate_masked_code(325324, "23q0w8q")).to eq(false)
+      expect(Codecal.validate_masked_code("aG2gD8", 1654546)).to eq(false)
+    end
+
+    it "return false when passing error length" do
+      expect(Codecal.validate_masked_code("a", "23q0w8q")).to eq(false)
+      expect(Codecal.validate_masked_code("aG2gD8", "234")).to eq(false)
     end
   end
 
