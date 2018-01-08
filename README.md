@@ -70,6 +70,14 @@ Codecal.validate_simple_code(String)
 #   valid : boolean
 Codecal.validate_masked_code(String)
 
+# Get unmasked code
+# Parameters:
+#   mask        : String(>=6)   -- mask of letter or number
+#   masked_code : String(>=6)
+# Return:
+#   code  : String(>=6) ||  false : boolean
+Codecal.get_unmasked_code(String)
+
 # Get currency name
 # Parameters:
 #   currency_code : String(4)

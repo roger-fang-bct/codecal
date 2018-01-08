@@ -30,7 +30,7 @@ module Codecal
         errormsg += "parameter is nil. "
         return {success:false, error: errormsg}
       end
-      errormsg += "the type of the code to be encrypted should be Integer. " unless account_id.to_i > 0
+      errormsg += "the type of the code to be encrypted should be Integer. " unless all_digits?(account_id.to_s)
       if errormsg.size == 0
         cal_array = (account_id.to_i.to_s).split("").map! {|i| i.to_i}
         {success:true,customer_code: simple_code_calculate(cal_array, @@simple_seed) }
@@ -40,7 +40,7 @@ module Codecal
     end
 
     def code_generate_with_mask(mask, account_id)
-      errormsg = "mark should be string of letter or number and length should >= 5" if !mask.is_a?(String) || mask.size < 6 || !all_letters_or_digits(mask) 
+      errormsg = "mark should be string of letter or number and length should >= 5" unless is_legal_mask?(mask)
       return {success:false, error: errormsg} if errormsg
       result = simple_code_generate(account_id)
       return result unless result[:success]
@@ -61,12 +61,20 @@ module Codecal
     end
 
     def validate_masked_code(mask, masked_code)
-      return false unless masked_code.is_a?(String) && masked_code.size > 5
-      return false if !mask.is_a?(String) || mask.size < 6 || !all_letters_or_digits(mask) 
+      return false unless is_legal_masked_code?(masked_code)
+      return false unless is_legal_mask?(mask) 
       offset = get_mask_offset(mask)
-      result = simple_code_generate(unmask_code(offset, masked_code))
+      result = simple_code_generate(unmask_code(offset, masked_code)[1..-1].to_i)
       return false unless result[:success]
       return masked_code == mask_code(offset, result[:customer_code])
+    end
+
+    def get_unmasked_code(mask, masked_code)
+      return false unless is_legal_masked_code?(masked_code)
+      return false unless is_legal_mask?(mask) 
+      offset = get_mask_offset(mask)
+      code = unmask_code(offset, masked_code)
+      all_digits?(code) ? code : false
     end
 
     def get_currency_name(currency_code)
@@ -95,10 +103,11 @@ module Codecal
     end
 
     def unmask_code(offset, masked_code)
-      code = masked_code[1..-1].split("").each_with_index.inject([]) do |code, (c, i)|
+      start_code = masked_code[0]
+      code = masked_code[1..-1].downcase.split("").each_with_index.inject([]) do |code, (c, i)|
         code.push(@@BASE_ALPHABET[(@@BASE_ALPHABET.find_index(c) - offset[ i % offset.size ]) % @@BASE_ALPHABET.size])
       end
-      code.join.to_i
+      code.unshift(start_code).join
     end
 
     def get_mask_offset(mask)
@@ -113,8 +122,23 @@ module Codecal
       end
     end
 
-    def all_letters_or_digits(str)
+    def all_letters_or_digits?(str)
       str[/[a-zA-Z0-9]+/]  == str
     end
+
+    def all_digits?(str)
+      str[/[0-9]+/]  == str
+    end
+
+    def is_legal_mask?(mask)
+      return false if !mask.is_a?(String) || mask.size < 6 || !all_letters_or_digits?(mask) 
+      return true
+    end
+
+    def is_legal_masked_code?(masked_code)
+      return false unless masked_code.is_a?(String) && masked_code.size > 5
+      return true
+    end
+
   end
 end

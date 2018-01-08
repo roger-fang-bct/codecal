@@ -112,6 +112,7 @@ RSpec.describe Codecal do
 
     it "return false when passing wrong code" do
       expect(Codecal.validate_masked_code("aG2gD8", "23q0w8q")).to eq(false)
+      expect(Codecal.validate_masked_code("aG2gD8", "22Q0W8Q")).to eq(false)
       expect(Codecal.validate_masked_code("aG2gD8", "badfdsfd")).to eq(false)
       expect(Codecal.validate_masked_code("aG2gD8", "2fds3r38q")).to eq(false)
       expect(Codecal.validate_masked_code("aG2gD8", "2dsdw8q")).to eq(false)
@@ -126,6 +127,24 @@ RSpec.describe Codecal do
     it "return false when passing error length" do
       expect(Codecal.validate_masked_code("a", "23q0w8q")).to eq(false)
       expect(Codecal.validate_masked_code("aG2gD8", "234")).to eq(false)
+    end
+  end
+
+  describe "get unmasked code" do
+    it "return code when passing correct masked code" do
+      unmasked_code = Codecal.get_unmasked_code("as4kgm3y", "317af8t1")
+      generated_code = Codecal.simple_code_generate(1025725)
+      expect(unmasked_code[0]).to eq(generated_code[:customer_code][-1])
+      expect(unmasked_code[1..-1]).to eq(generated_code[:customer_code][0..-2])
+    end
+
+    it "return false when passing wrong masked code" do
+      expect(Codecal.get_unmasked_code("as4kgm3y", "3124fds1")).to eq(false)
+    end
+
+    it "return false when passing illegal masked code" do
+      expect(Codecal.get_unmasked_code("as4kgm3y", "38t1")).to eq(false)
+      expect(Codecal.get_unmasked_code("as4", "38tfdsa1")).to eq(false)
     end
   end
 
