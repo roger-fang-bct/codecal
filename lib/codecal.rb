@@ -3,6 +3,7 @@ require_relative "./code"
 
 module Codecal
   @@BASE_ALPHABET = ['o','a','3','p','9','h','b','2','q','i','1','c','4','r','7','j','s','5','d','t','8','k','u','e','v','l','w','f','x','6','m','y','0','g','z','n']
+  @@MASK_ALPHABET = ['a','4','p','9','h','r','7','q','c','3','b','2','j','s','6','d','t','8','k','u','e','l','v','f','w','x','5','m','y','g','z','n', 'i']
   @@generate_seed = [2,7,5,3,8,9,5,9,1,6,7,3,5]
   @@simple_seed = [5,4,6,2,3,1,5,4,6,2,3,1]
   class<<self
@@ -64,7 +65,7 @@ module Codecal
       return false unless is_legal_masked_code?(masked_code)
       return false unless is_legal_mask?(mask) 
       offset = get_mask_offset(mask)
-      result = simple_code_generate(unmask_code(offset, masked_code)[1..-1].to_i)
+      result = simple_code_generate(unmask_code(offset, masked_code)[0..-2].to_i)
       return false unless result[:success]
       return masked_code == mask_code(offset, result[:customer_code])
     end
@@ -95,19 +96,19 @@ module Codecal
 
     def mask_code(offset, code)
       code_arr = code.size > 5 ? code.split("") : ("%06d" % code).split("")
-      start_code = code_arr.pop
       masked_code = code_arr.each_with_index.inject([]) do |code, (c, i)|
-        code.push(@@BASE_ALPHABET[(@@BASE_ALPHABET.find_index(c) + offset[ i % offset.size ]) % @@BASE_ALPHABET.size])
+        code.push(@@MASK_ALPHABET[(@@BASE_ALPHABET.find_index(c) + offset[ i % offset.size ]) % @@MASK_ALPHABET.size])
       end
+      start_code = masked_code.pop
       masked_code.unshift(start_code).join
     end
 
     def unmask_code(offset, masked_code)
-      start_code = masked_code[0]
-      code = masked_code[1..-1].downcase.split("").each_with_index.inject([]) do |code, (c, i)|
-        code.push(@@BASE_ALPHABET[(@@BASE_ALPHABET.find_index(c) - offset[ i % offset.size ]) % @@BASE_ALPHABET.size])
+      masked_code = masked_code[1..-1] + masked_code[0]
+      code = masked_code.downcase.split("").each_with_index.inject([]) do |code, (c, i)|
+        code.push(@@BASE_ALPHABET[(@@MASK_ALPHABET.find_index(c) - offset[ i % offset.size ]) % @@MASK_ALPHABET.size])
       end
-      code.unshift(start_code).join
+      code.join
     end
 
     def get_mask_offset(mask)
@@ -137,6 +138,7 @@ module Codecal
 
     def is_legal_masked_code?(masked_code)
       return false unless masked_code.is_a?(String) && masked_code.size > 5
+      return false unless masked_code[/[a-zA-KMNP-Z2-9]+/] == masked_code
       return true
     end
 
