@@ -7,11 +7,11 @@ Gem::Specification.new do |spec|
   spec.name          = "codecal"
   spec.version       = Codecal::VERSION
   spec.authors       = ["Roger Fang"]
-  spec.email         = ["roger.fang@acx.io"]
+  spec.email         = ["roger.fang@blockchaintech.net.au"]
 
   spec.summary       = %q{calculate a string for parameters.}
   spec.description   = %q{return a string according to parameters(1/2) and a seed.}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/roger-fang-bct/codecal.git"
   spec.license       = "MIT"
 
 
