@@ -43,21 +43,21 @@ RSpec.describe Codecal do
       result = Codecal.code_generate_with_mask("ag2gd8",239851)
       expect(result[:success]).to eq(true)
       expect(result[:customer_code].length).to eq(7)
-      expect(result[:customer_code]).to eq("22q0w8q")
+      expect(result[:customer_code]).to eq("qqci5e2")
     end
 
     it "return correct code with correct params shorter than 6" do
       result = Codecal.code_generate_with_mask("tu3a2j",2)
       expect(result[:success]).to eq(true)
       expect(result[:customer_code].length).to eq(6)
-      expect(result[:customer_code]).to eq("6jsl0n")
+      expect(result[:customer_code]).to eq("rkuyip")
     end
 
     it "return correct code with correct params upper case" do
       result = Codecal.code_generate_with_mask("aG2gD8",239851)
       expect(result[:success]).to eq(true)
       expect(result[:customer_code].length).to eq(7)
-      expect(result[:customer_code]).to eq("22q0w8q")
+      expect(result[:customer_code]).to eq("qqci5e2")
     end
 
     it "return correct code with incorrect params error mask" do
@@ -106,13 +106,13 @@ RSpec.describe Codecal do
 
   describe "validate masked code" do
     it "return true when passing correct code" do
-      expect(Codecal.validate_masked_code("aG2gD8", "22q0w8q")).to eq(true)
-      expect(Codecal.validate_masked_code("tu3a2j", "6jsl0n")).to eq(true)
+      expect(Codecal.validate_masked_code("aG2gD8", "qqci5e2")).to eq(true)
+      expect(Codecal.validate_masked_code("tu3a2j", "rkuyip")).to eq(true)
     end
 
     it "return false when passing wrong code" do
-      expect(Codecal.validate_masked_code("aG2gD8", "23q0w8q")).to eq(false)
-      expect(Codecal.validate_masked_code("aG2gD8", "22Q0W8Q")).to eq(false)
+      expect(Codecal.validate_masked_code("aG2gD8", "qqci5E2")).to eq(false)
+      expect(Codecal.validate_masked_code("aG2gD8", "qqci5e3")).to eq(false)
       expect(Codecal.validate_masked_code("aG2gD8", "badfdsfd")).to eq(false)
       expect(Codecal.validate_masked_code("aG2gD8", "2fds3r38q")).to eq(false)
       expect(Codecal.validate_masked_code("aG2gD8", "2dsdw8q")).to eq(false)
@@ -132,10 +132,9 @@ RSpec.describe Codecal do
 
   describe "get unmasked code" do
     it "return code when passing correct masked code" do
-      unmasked_code = Codecal.get_unmasked_code("as4kgm3y", "317af8t1")
+      unmasked_code = Codecal.get_unmasked_code("as4kgm3y", "5b8hmeus")
       generated_code = Codecal.simple_code_generate(1025725)
-      expect(unmasked_code[0]).to eq(generated_code[:customer_code][-1])
-      expect(unmasked_code[1..-1]).to eq(generated_code[:customer_code][0..-2])
+      expect(unmasked_code).to eq(generated_code[:customer_code])
     end
 
     it "return false when passing wrong masked code" do
