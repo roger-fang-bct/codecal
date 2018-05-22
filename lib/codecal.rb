@@ -63,16 +63,25 @@ module Codecal
 
     def validate_masked_code(mask, masked_code)
       return false unless is_legal_masked_code?(masked_code)
-      return false unless is_legal_mask?(mask) 
+      return false unless is_legal_mask?(mask)
+      masked_code = convert_masked_code_typo(masked_code)
+
       offset = get_mask_offset(mask)
       result = simple_code_generate(unmask_code(offset, masked_code)[0..-2].to_i)
+
       return false unless result[:success]
       return masked_code == mask_code(offset, result[:customer_code])
     end
 
+    def convert_masked_code_typo(masked_code)
+      masked_code.gsub('1', 'l')
+    end
+
     def get_unmasked_code(mask, masked_code)
       return false unless is_legal_masked_code?(masked_code)
-      return false unless is_legal_mask?(mask) 
+      return false unless is_legal_mask?(mask)
+      masked_code = convert_masked_code_typo(masked_code)
+
       offset = get_mask_offset(mask)
       code = unmask_code(offset, masked_code)
       all_digits?(code) ? code : false
@@ -138,7 +147,7 @@ module Codecal
 
     def is_legal_masked_code?(masked_code)
       return false unless masked_code.is_a?(String) && masked_code.size > 5
-      return false unless masked_code[/[a-zA-KMNP-Z2-9]+/] == masked_code
+      return false unless masked_code[/[a-np-zA-NP-Z1-9]+/] == masked_code
       return true
     end
 
