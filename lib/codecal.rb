@@ -2,11 +2,23 @@ require "codecal/version"
 require_relative "./code"
 
 module Codecal
-  @@BASE_ALPHABET = ['o','a','3','p','9','h','b','2','q','i','1','c','4','r','7','j','s','5','d','t','8','k','u','e','v','l','w','f','x','6','m','y','0','g','z','n']
-  @@MASK_ALPHABET = ['a','4','p','9','h','r','7','q','c','3','b','2','j','s','6','d','t','8','k','u','e','l','v','f','w','x','5','m','y','g','z','n', 'i']
-  @@generate_seed = [2,7,5,3,8,9,5,9,1,6,7,3,5]
-  @@simple_seed = [5,4,6,2,3,1,5,4,6,2,3,1]
-  class<<self
+
+  class Calc
+    @@MASK_ALPHABET = ['a','4','p','9','h','r','7','q','c','3','b','2','j','s','6','d','t','8','k','u','e','v','f','w','x','5','m','y','g','z','n']
+    @@generate_seed = [2,7,5,3,8,9,5,9,1,6,7,3,5]
+    @@simple_seed = [5,4,6,2,3,1,5,4,6,2,3,1]
+
+    def initialize(mask_alphabet = nil)
+      if mask_alphabet.is_a?(String) && 
+          mask_alphabet.size > 26 &&
+          all_letters_or_digits?(mask_alphabet) &&
+          mask_alphabet.size == mask_alphabet.split('').uniq.size
+        @mask_alphabet = mask_alphabet.split('')
+      else
+        @mask_alphabet = @@MASK_ALPHABET      
+      end
+    end
+
     def bank_customer_code_generate(account_id, currency)
       errormsg = ""
       if account_id == nil || currency == nil
@@ -84,7 +96,7 @@ module Codecal
 
       offset = get_mask_offset(mask)
       code = unmask_code(offset, masked_code)
-      all_digits?(code) ? code : false
+      masked_code.size == code.size ? code : false
     end
 
     def get_currency_name(currency_code)
@@ -106,7 +118,7 @@ module Codecal
     def mask_code(offset, code)
       code_arr = code.size > 5 ? code.split("") : ("%06d" % code).split("")
       masked_code = code_arr.each_with_index.inject([]) do |code, (c, i)|
-        code.push(@@MASK_ALPHABET[(@@BASE_ALPHABET.find_index(c) + offset[ i % offset.size ]) % @@MASK_ALPHABET.size])
+        code.push(mask_char(c, offset[ i % offset.size ]))
       end
       start_code = masked_code.pop
       masked_code.unshift(start_code).join
@@ -115,14 +127,14 @@ module Codecal
     def unmask_code(offset, masked_code)
       masked_code = masked_code[1..-1] + masked_code[0]
       code = masked_code.downcase.split("").each_with_index.inject([]) do |code, (c, i)|
-        code.push(@@BASE_ALPHABET[(@@MASK_ALPHABET.find_index(c) - offset[ i % offset.size ]) % @@MASK_ALPHABET.size])
+        code.push(un_mask_char(c, offset[ i % offset.size ]))
       end
       code.join
     end
 
     def get_mask_offset(mask)
       mask.split("").inject([]) do |offset,c|
-        [[*'a'..'z', *'0'..'9'], [*'A'..'Z', *'0'..'9']].each do |m|
+        [[*'a'..'z'], [*'A'..'Z'], [*'0'..'9']].each do |m|
           if m.include?(c)
             offset.push(m.find_index(c))
             break
@@ -147,9 +159,27 @@ module Codecal
 
     def is_legal_masked_code?(masked_code)
       return false unless masked_code.is_a?(String) && masked_code.size > 5
-      return false unless masked_code[/[a-np-zA-NP-Z1-9]+/] == masked_code
+      return false unless mask_alphabet_include?(masked_code)
       return true
     end
 
+    def mask_alphabet_include?(code)
+      code.split('').each do |c|
+        return false unless @mask_alphabet.include?(c)
+      end
+      true
+    end
+
+    def mask_char(char, offset)
+      if all_digits?(char) && char.size == 1
+        @mask_alphabet[(@mask_alphabet.find_index(@mask_alphabet[char.to_i]) + offset) % @mask_alphabet.size]
+      end
+    end
+
+    def un_mask_char(char, offset)
+      if mask_alphabet_include?(char)
+        (@mask_alphabet.find_index(char) - offset) % @mask_alphabet.size
+      end
+    end
   end
 end
