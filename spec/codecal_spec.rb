@@ -11,14 +11,26 @@ RSpec.describe Codecal do
 
   describe "generate codes" do
     let(:mask) { 'maskcode01' }
-    let(:aim_number) { 1_000 }
+    let(:aim_number) { 2_000 }
+    let(:start_number) { 1_000 }
+    let(:simple_codes) {
+      (start_number..aim_number).inject([]) do |codes, num|
+        codes.push(codecal.simple_code_generate(num)[:customer_code])
+      end
+    }
     let(:masked_codes) {
-      (1..aim_number).inject([]) do |codes, num|
+      (start_number..aim_number).inject([]) do |codes, num|
         codes.push(codecal.code_generate_with_mask(mask, num)[:customer_code])
       end
     }
 
-    it "should have no duplicate codes" do
+    it "should have no duplicate simple codes" do
+      puts simple_codes.select{ |e| simple_codes.count(e) > 1 }.uniq
+      expect(simple_codes.uniq.size).to eq aim_number
+    end
+
+    it "should have no duplicate masked codes" do
+      puts masked_codes.select{ |e| masked_codes.count(e) > 1 }.uniq
       expect(masked_codes.uniq.size).to eq aim_number
     end
 
@@ -27,8 +39,28 @@ RSpec.describe Codecal do
         expect(codecal.validate_masked_code(mask, code)).to eq true
       end
     end
-  end
 
+    it "should has at least 2 different characters with others" do
+      recursion_codes = masked_codes
+      one_char_diff = []
+
+      recursion_codes.each do |code|
+        (recursion_codes - [code]).each do |other|
+          diff_char_count = code.split('').each_with_index.inject(0) do |count, (c, i)|
+            count += 1 if other[i] != c
+            count
+          end
+          # puts "code a: '#{code}' and code b: '#{other}'" if diff_char_count == 1
+          arr = [code, other].sort
+          one_char_diff += [arr] if diff_char_count == 1 && !one_char_diff.include?(arr)
+        end
+      end
+
+      binding.pry
+      expect(one_char_diff.count).to eq 0
+    end
+  end
+=begin
   describe "generate correct code" do
     it "return correct code with correct params upcase" do
       result = codecal.bank_customer_code_generate(1230,"HSR")
@@ -268,4 +300,5 @@ RSpec.describe Codecal do
       end
     end
   end
+=end
 end

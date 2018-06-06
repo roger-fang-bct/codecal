@@ -25,19 +25,9 @@ codecal = Codecal::Calc.new()
 
 codecal = Codecal::Calc.new('fdsa32jkh89704lncmxzvrueopwytq')
 
-# Generate customer code for user account
-# Parameters:
-#   number     : Integer(<=9) -- code to be calculated and masked
-#   currency   : String       --currency name
-# Return: Hash
-#   success       : boolean -- generate customer code success
-#   customer code : String  -- 16 numbers string when success == true
-#   error         : String  -- error message of parameters when success == false
-codecal.bank_customer_code_generate(number, currency)
-
 # Generate simple code for account
 # Parameters:
-#   number  : Integer(<=9)  -- code to be calculated and masked
+#   number  : Integer       -- code to be calculated and masked
 # Return: Hash
 #   success       : boolean -- generate customer code success
 #   customer code : String  -- numbers(number.length + 1) string when success == true
@@ -53,13 +43,6 @@ codecal.simple_code_generate(number)
 #   customer code : String  -- combination of letter and number(number.length + 1) string when success == true
 #   error         : String  -- error message of parameters when success == false
 codecal.code_generate_with_mask(mask, number)
-
-# Validate customer code
-# Parameters:
-#   customer_code : String
-# Return:
-#   valid : boolean
-codecal.validate_bank_customer_code(String)
 
 # Validate simple code
 # Parameters:
@@ -83,10 +66,3 @@ codecal.validate_masked_code(String)
 # Return:
 #   code  : String(>=6) ||  false : boolean
 codecal.get_unmasked_code(String)
-
-# Get currency name
-# Parameters:
-#   currency_code : String(4)
-# Return:
-#   currency name : String -- nil if not found
-codecal.get_currency_name(String)
