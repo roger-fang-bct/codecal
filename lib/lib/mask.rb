@@ -2,8 +2,8 @@ module Codecal
   module Mask
     def mask_code(offset, code)
       code_arr = code.size > 5 ? code.split("") : ("%06d" % code).split("")
-      masked_code = code_arr.each_with_index.inject([]) do |code, (c, i)|
-        code.push(mask_char(c, offset[ i % offset.size ]))
+      masked_code = code_arr.each_with_index.inject([]) do |codes, (c, i)|
+        codes.push(mask_char(c, offset[ i % offset.size ]))
       end
       start_code = masked_code.pop
       masked_code.unshift(start_code).join
@@ -11,10 +11,9 @@ module Codecal
 
     def unmask_code(offset, masked_code)
       masked_code = masked_code[1..-1] + masked_code[0]
-      code = masked_code.downcase.split("").each_with_index.inject([]) do |code, (c, i)|
+      masked_code.downcase.split("").each_with_index.inject([]) do |code, (c, i)|
         code.push(un_mask_char(c, offset[ i % offset.size ]))
-      end
-      code.join
+      end.join
     end
 
     def get_mask_offset(mask)

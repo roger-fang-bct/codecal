@@ -11,27 +11,28 @@ RSpec.describe Codecal do
 
   describe "generate codes" do
     let(:mask) { 'maskcode01' }
-    let(:aim_number) { 2_000 }
-    let(:start_number) { 1_000 }
-    let(:simple_codes) {
-      (start_number..aim_number).inject([]) do |codes, num|
-        codes.push(codecal.simple_code_generate(num)[:customer_code])
-      end
-    }
+    let(:aim_number) { 10_000 } # 100_000 passed
+    let(:start_number) { 1 }
+    # let(:simple_codes) {
+    #   (start_number..aim_number).inject([]) do |codes, num|
+    #     codes.push(codecal.simple_code_generate(num)[:customer_code])
+    #   end
+    # }
     let(:masked_codes) {
       (start_number..aim_number).inject([]) do |codes, num|
         codes.push(codecal.code_generate_with_mask(mask, num)[:customer_code])
       end
     }
 
-    it "should have no duplicate simple codes" do
-      puts simple_codes.select{ |e| simple_codes.count(e) > 1 }.uniq
-      expect(simple_codes.uniq.size).to eq aim_number
-    end
+    ## debugging duplicated values
+    # it "should have no duplicate simple codes" do
+    #   puts simple_codes.select{ |e| simple_codes.count(e) > 1 }.uniq
+    #   expect(simple_codes.uniq.size).to eq (aim_number - start_number + 1)
+    # end
 
     it "should have no duplicate masked codes" do
       puts masked_codes.select{ |e| masked_codes.count(e) > 1 }.uniq
-      expect(masked_codes.uniq.size).to eq aim_number
+      expect(masked_codes.uniq.size).to eq (aim_number - start_number + 1)
     end
 
     it "should all be valid" do
@@ -40,41 +41,25 @@ RSpec.describe Codecal do
       end
     end
 
-    it "should has at least 2 different characters with others" do
-      recursion_codes = masked_codes
-      one_char_diff = []
+    ## maybe future feature
+    # it "should has at least 2 different characters with others" do
+    #   recursion_codes = masked_codes
+    #   one_char_diff = []
 
-      recursion_codes.each do |code|
-        (recursion_codes - [code]).each do |other|
-          diff_char_count = code.split('').each_with_index.inject(0) do |count, (c, i)|
-            count += 1 if other[i] != c
-            count
-          end
-          # puts "code a: '#{code}' and code b: '#{other}'" if diff_char_count == 1
-          arr = [code, other].sort
-          one_char_diff += [arr] if diff_char_count == 1 && !one_char_diff.include?(arr)
-        end
-      end
+    #   recursion_codes.each do |code|
+    #     (recursion_codes - [code]).each do |other|
+    #       diff_char_count = code.split('').each_with_index.inject(0) do |count, (c, i)|
+    #         count += 1 if other[i] != c
+    #         count
+    #       end
+    #       # puts "code a: '#{code}' and code b: '#{other}'" if diff_char_count == 1
+    #       arr = [code, other].sort
+    #       one_char_diff += [arr] if diff_char_count == 1 && !one_char_diff.include?(arr)
+    #     end
+    #   end
 
-      binding.pry
-      expect(one_char_diff.count).to eq 0
-    end
-  end
-=begin
-  describe "generate correct code" do
-    it "return correct code with correct params upcase" do
-      result = codecal.bank_customer_code_generate(1230,"HSR")
-      expect(result[:success]).to eq(true)
-      expect(result[:customer_code].length).to eq(16)
-      expect(result[:customer_code]).to eq("0000012300020052")
-    end
-
-    it "return correct code with correct params downcase" do
-      result = codecal.bank_customer_code_generate(1230,"eth")
-      expect(result[:success]).to eq(true)
-      expect(result[:customer_code].length).to eq(16)
-      expect(result[:customer_code]).to eq("0000012300002056")
-    end
+    #   expect(one_char_diff.count).to eq 0
+    # end
   end
 
   describe "generate simple correct code" do
@@ -129,29 +114,13 @@ RSpec.describe Codecal do
     end
   end
 
-  describe "validate customer code" do
-    it "return true when passing correct code" do
-      expect(codecal.validate_bank_customer_code("0000012300020052")).to eq(true)
-    end
-
-    it "return false when passing wrong code" do
-      expect(codecal.validate_bank_customer_code("0000012300020012")).to eq(false)
-    end
-
-    it "return false when passing error type code" do
-      expect(codecal.validate_bank_customer_code(nil)).to eq(false)
-      expect(codecal.validate_bank_customer_code(4234)).to eq(false)
-      expect(codecal.validate_bank_customer_code("432432jhk4h3214h321h4321")).to eq(false)
-    end
-  end
-
   describe "validate simple code" do
     it "return true when passing correct code" do
       expect(codecal.validate_simple_code("655245")).to eq(true)
     end
 
     it "return false when passing wrong code" do
-      expect(codecal.validate_simple_code("655255")).to eq(false)
+      expect(codecal.validate_simple_code("655244")).to eq(false)
     end
 
     it "return false when passing error type code" do
@@ -167,11 +136,11 @@ RSpec.describe Codecal do
     end
 
     it "return false when passing wrong code" do
-      expect(codecal.validate_masked_code("aG2gD8", "qqci5E2")).to eq(false)
-      expect(codecal.validate_masked_code("aG2gD8", "qqci5e3")).to eq(false)
+      expect(codecal.validate_masked_code("aG2gD8", "pp326C3")).to eq(false)
+      expect(codecal.validate_masked_code("aG2gD8", "pp326c2")).to eq(false)
       expect(codecal.validate_masked_code("aG2gD8", "badfdsfd")).to eq(false)
-      expect(codecal.validate_masked_code("aG2gD8", "2fds3r38q")).to eq(false)
-      expect(codecal.validate_masked_code("aG2gD8", "2dsdw8q")).to eq(false)
+      expect(codecal.validate_masked_code("aG2gD8", "pp326c3a")).to eq(false)
+      expect(codecal.validate_masked_code("aG2gD8", "pp326c")).to eq(false)
       expect(codecal.validate_masked_code("aG2gD8", "w8q")).to eq(false)
     end
 
@@ -200,56 +169,6 @@ RSpec.describe Codecal do
     it "return false when passing illegal masked code" do
       expect(codecal.get_unmasked_code("as4kgm3y", "38t1")).to eq(false)
       expect(codecal.get_unmasked_code("as4", "38tfdsa1")).to eq(false)
-    end
-  end
-
-  describe "get currency name" do
-    it "return true when passing correct code" do
-      expect(codecal.get_currency_name("0001")).to eq("BTC")
-    end
-
-    it "return false when passing error type code" do
-      expect(codecal.get_currency_name(nil)).to eq(nil)
-      expect(codecal.get_currency_name(4234)).to eq(nil)
-      expect(codecal.get_currency_name(4234)).to eq(nil)
-      expect(codecal.get_currency_name("432432jhk4h3214h321h4321")).to eq(nil)
-    end
-  end
-
-  describe "generate with wrong params" do
-
-    it "raise error with nil parameters type" do
-      result = codecal.bank_customer_code_generate(nil,nil)
-      expect(result[:success]).to eq(false)
-      expect(result[:error]).to match(/parameter is nil./)
-    end
-
-    it "raise error with wrong parameters type" do
-      result = codecal.bank_customer_code_generate(1230,1234)
-      expect(result[:success]).to eq(false)
-      expect(result[:error]).to match(/type should be String/)
-    end
-
-    it "raise error with wrong parameters type" do
-      result = codecal.bank_customer_code_generate("fda",1234)
-      expect(result[:success]).to eq(false)
-      expect(result[:error]).to match(/type should be Integer and length not longer than/)
-    end
-
-    it "raise error with wrong parameters length" do
-      result = codecal.bank_customer_code_generate(5354233243241321,"fsda")
-      expect(result[:success]).to eq(false)
-      expect(result[:error]).to match(/type should be Integer and length not longer than/)
-    end
-    
-  end
-
-  describe "generate with currency code not exist" do
-
-    it "raise error with wrong currency name" do
-      result = codecal.bank_customer_code_generate(1230,"1234")
-      expect(result[:success]).to eq(false)
-      expect(result[:error]).to match(/currency not found/)
     end
   end
 
@@ -300,5 +219,4 @@ RSpec.describe Codecal do
       end
     end
   end
-=end
 end
